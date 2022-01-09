@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import './question.dart';
-import 'answer.dart';
+import 'quiz.dart';
+import 'result.dart';
 
 void main() {
   runApp(MyApp());
@@ -16,21 +16,43 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   var _questionIndex = 0;
+  var _totalScore = 0;
+
+  void _resetQuiz() {
+    setState(() {
+      _questionIndex = 0;
+      _totalScore = 0;
+    });
+  }
+
   static const _questions = [
     {
       "questionText": "What's your favorite color?",
-      'answers': ['Black', 'Red', 'Green', 'White']
+      'answers': [
+        {"text": 'Black', "score": 10},
+        {"text": 'Red', "score": 5},
+        {"text": 'Green', "score": 3},
+        {"text": 'White', "score": 1}
+      ]
     },
     {
       "questionText": "What's your favorite animal?",
-      'answers': ['Rabbit', 'Snake', 'Elephant', 'Lion']
+      'answers': [
+        {"text": 'Rabbit', "score": 3},
+        {"text": 'Snake', "score": 11},
+        {"text": 'Elephant', "score": 5},
+        {"text": 'Lion', "score": 9}
+      ]
     },
   ];
 
-  void _answerQuestion() {
-    setState(() {
-      _questionIndex = (_questionIndex + 1) % _questions.length;
-    });
+  void _answerQuestion(int score) {
+    _totalScore += score;
+    if (_questionIndex < _questions.length) {
+      setState(() {
+        _questionIndex = _questionIndex + 1;
+      });
+    }
   }
 
   @override
@@ -38,19 +60,15 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
         home: Scaffold(
       appBar: AppBar(
-        title: const Text('My first App'),
+        title: const Text('Uwu'),
       ),
-      body: Column(
-        children: [
-          Question(
-            _questions[_questionIndex]['questionText'] as String,
-          ),
-          ...(_questions[_questionIndex]["answers"] as List<String>)
-              .map((answer) {
-            return Answer(_answerQuestion, answer);
-          }).toList(),
-        ],
-      ),
+      body: _questionIndex < _questions.length
+          ? Quiz(
+              answerQuestion: _answerQuestion,
+              questionIndex: _questionIndex,
+              questions: _questions,
+            )
+          : Result(_totalScore, _resetQuiz),
     ));
   }
 }
